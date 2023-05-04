@@ -1,5 +1,6 @@
 using CodeFirstRestaurantAPI.Models;
 using CodeFirstRestaurantAPI.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -15,16 +16,31 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // passing connection string..........
+
+builder.Services.AddDbContext<SecurityContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SecConnStr"));
+});
+
 builder.Services.AddDbContext<RestaurantAppContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("RestaurantConn"));
 });
 
+
+
+
+
 // we are using for every session new object gets created ->scopedlifetime. 
 // we are using for every requests ->transientlifetime.
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<SecurityContext>();
+builder.Services.AddScoped<AuthService>();  
+
 builder.Services.AddScoped<IService<Menu, int>, MenuService>();
 
 builder.Services.AddScoped<ICategoryService<Category, int>, CategoryService>();
+
+builder.Services.AddScoped<IDishService<Dish, int>, DishService>();
 
 
 

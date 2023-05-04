@@ -59,12 +59,12 @@ namespace CodeFirstRestaurantAPI.Controllers
 
             public async Task<IActionResult> Update([FromForm] Category obj, int id)
             {
-            //var category = await ctx.UpdateAsync(obj, id);
+            var category = await ctx.UpdateAsync(obj, id);
 
-            //if (category == null)
-            //    return NotFound();
+            if (category == null)
+                return NotFound();
 
-            //return Ok(category);
+            return Ok(category);
             return Ok("Categoruupdated");
 
             }

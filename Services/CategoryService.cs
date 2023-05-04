@@ -60,14 +60,17 @@ namespace CodeFirstRestaurantAPI.Services
                 await ctx.SaveChangesAsync();
                 obj.CategoryId = result.Entity.CategoryId;
                 var lastMenuCategory = await ctx.MenuCategories.ToListAsync();
+
+
                 var menuCategoryEntity = new MenuCategory()
                 {
                     MenuId = MenuId,
                     CategoryId = obj.CategoryId,
-                    DisplayOrder = lastMenuCategory[^1].DisplayOrder + 1
+                    DisplayOrder = lastMenuCategory[^1].DisplayOrder + 1,
                 };
                 var assignCategoryToMenu = await ctx.MenuCategories.AddAsync(menuCategoryEntity);
                 await ctx.SaveChangesAsync();
+
             }
             catch (Exception ex)
             {
@@ -86,24 +89,18 @@ namespace CodeFirstRestaurantAPI.Services
 
         List<Category> ICategoryService<Category, int>.GetCategoriesByMenuId(int MenuId)
         {
-            // Get all the instances of a MenuId which has it's corresponding CategoryId in it.
-            var results = ctx.MenuCategories.Where(obj => obj.MenuId == MenuId);
-            var categories = new List<Category>();
-           
-            
-                foreach (var item in results)
-                {
-                    var obj =  ctx.Categories.FirstOrDefault(elem => elem.CategoryId == item.CategoryId);
-                    categories.Add(obj);
-                }
-                return categories;
-           
+            var results = (from category in ctx.Categories
+                           join menu in ctx.MenuCategories
+                           on MenuId equals menu.MenuId
+                           where menu.CategoryId == category.CategoryId
+                           select category).ToList();
+            return results; 
 
         }
 
-       
+
         // TODO.
-        async Task<Category> ICategoryService<Category, int>.UpdateAsync(Category obj, int id, int CategoryId)
+        async Task<Category> ICategoryService<Category, int>.UpdateAsync(Category obj, int id)
         {
             BlobContainerClient container = new BlobContainerClient(configuration.GetConnectionString("AzureContainerString"), configuration["ContainerName"]);
 

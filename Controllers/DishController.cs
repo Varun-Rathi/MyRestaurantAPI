@@ -12,7 +12,7 @@ namespace CodeFirstRestaurantAPI.Controllers
         private readonly IDishService<Dish, int> serv;
 
 
-        public DishController(IDishService<Dish, int> serv)
+        public DishController(IDishService<Dish, int> serv) 
         {
             this.serv = serv;
         }
