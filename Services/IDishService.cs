@@ -8,7 +8,12 @@
 
         Task<TEntity> CreateDishByCategory(TPk CategoryId, TEntity dish);
         Task<TEntity> UpdateDish(TEntity obj, TPk DishId);
-        Task<TEntity> DeleteDish(TPk DishId);
+        Task<dynamic> DeleteDish(TPk DishId);
+
+        Task<IEnumerable<TEntity>> SearchDish(string SearchTerm);
+
+        //Task<string> GetDishWithCategoryAndMenuId(TPk DishId);
+
 
         
     }

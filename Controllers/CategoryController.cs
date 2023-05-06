@@ -69,31 +69,31 @@ namespace CodeFirstRestaurantAPI.Controllers
 
             }
 
-            //[HttpDelete("{id}")]
-            //[ActionName("deletebyid")]
+        [HttpDelete("{id}")]
+        [ActionName("deletebyid")]
 
 
-            //public async Task<IActionResult> Delete(int id)
-            //{
+        public async Task<IActionResult> Delete(int id)
+        {
 
 
-            //    var menu = await ctx.DeleteAsync(id);
+            var menu = await ctx.DeleteAsync(id);
 
 
-            //    //The if (!menu) condition checks whether the result of the DeleteAsync
-            //    //operation in the MenuService was successful or not...........
-            //    if (menu == false)
-            //    {
+            //The if (!menu) condition checks whether the result of the DeleteAsync
+            //operation in the MenuService was successful or not...........
+            if (menu == false)
+            {
 
-            //        // return 404 if record not found..
-            //        return NotFound();
-            //    }
-
-
-            //    // return 204 record deleted successfully....
-            //    return NoContent();
+                // return 404 if record not found..
+                return NotFound();
+            }
 
 
-            //}
+            // return 204 record deleted successfully....
+            return NoContent();
+
+
         }
+    }
 }

@@ -8,6 +8,7 @@ namespace CodeFirstRestaurantAPI.Models
 
         public int MenuId { get; set; }
         public int CategoryId { get; set; }
+        public bool IsDeleted { get; set; }
 
         public virtual Menu? Menu { get; set; }
         public virtual Category? Category { get; set; }

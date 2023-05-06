@@ -79,19 +79,21 @@ namespace CodeFirstRestaurantAPI.Controllers
             var menu=await ctx.DeleteAsync(id);
 
 
-            //The if (!menu) condition checks whether the result of the DeleteAsync
-            //operation in the MenuService was successful or not...........
-            if (menu==false)
+            ////The if (!menu) condition checks whether the result of the DeleteAsync
+            ////operation in the MenuService was successful or not...........
+            if (menu == false)
             {
 
                 // return 404 if record not found..
                 return NotFound();
             }
+            //else if (menu == true) return Forbid("Menu already deleted");            
 
 
-            // return 204 record deleted successfully....
-            return NoContent();
+            if (menu == true)
+                return NoContent();
 
+            return BadRequest();
 
         }
     }

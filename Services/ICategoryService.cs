@@ -7,7 +7,7 @@
         List<TEntity> GetCategoriesByMenuId(TPk MenuId); // get categories by it's menu id;
         
         Task<TEntity> UpdateAsync(TEntity obj, TPk CategoryId);  
-        Task DeleteAsync(TPk MenuId, TPk CategoryId);
+        Task<bool> DeleteAsync(TPk CategoryId);
 
     }
 }

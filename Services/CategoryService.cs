@@ -82,9 +82,40 @@ namespace CodeFirstRestaurantAPI.Services
         }
 
 
-        Task ICategoryService<Category, int>.DeleteAsync(int MenuId, int CategoryId)
+        async Task<bool> ICategoryService<Category, int>.DeleteAsync(int CategoryId)
         {
-            throw new NotImplementedException();
+            var ifCategoryExists = await ctx.Categories.FindAsync(CategoryId);
+            if (ifCategoryExists == null) return false;
+            
+            var menuCategoryMappings = (from menuCategory in ctx.MenuCategories
+                                        where menuCategory.CategoryId == CategoryId
+                                        select menuCategory).ToListAsync();
+
+            if (menuCategoryMappings.Result.Any())
+            {
+                menuCategoryMappings.Result.ForEach(obj => obj.IsDeleted = true);
+                ctx.SaveChanges(); 
+            }
+            var categoryDishMappings = (from categoryDish in ctx.CategoryDishes
+                                        where categoryDish.CategoryId == CategoryId
+                                        select categoryDish).ToListAsync();
+            if(categoryDishMappings.Result.Any())
+            {
+                categoryDishMappings.Result.ForEach(obj =>
+                {
+                    obj.IsDeleted = true;
+                    var dishesToDelete = (from dish in ctx.Dishes
+                                          where dish.DishId == obj.DishId
+                                          select dish).ToList();
+                    dishesToDelete.ForEach(obj => obj.IsDeleted=true);
+
+                });
+            }
+
+            ifCategoryExists.IsDeleted = true; 
+            await ctx.SaveChangesAsync();
+            return true; 
+
         }
 
         List<Category> ICategoryService<Category, int>.GetCategoriesByMenuId(int MenuId)
@@ -92,7 +123,8 @@ namespace CodeFirstRestaurantAPI.Services
             var results = (from category in ctx.Categories
                            join menu in ctx.MenuCategories
                            on MenuId equals menu.MenuId
-                           where menu.CategoryId == category.CategoryId
+                           where menu.CategoryId == category.CategoryId 
+                           && (menu.IsDeleted == false && category.IsDeleted == false)
                            select category).ToList();
             return results; 
 
@@ -109,8 +141,14 @@ namespace CodeFirstRestaurantAPI.Services
             if (categoryToUpdate == null) return null;
 
             // Update category properties with values from obj parameter
-            categoryToUpdate.CategoryName = obj.CategoryName;
-            categoryToUpdate.CategoryDescription = obj.CategoryDescription;
+            if(!string.IsNullOrEmpty(categoryToUpdate.CategoryName))
+                categoryToUpdate.CategoryName = obj.CategoryName;
+            if (!string.IsNullOrEmpty(categoryToUpdate.CategoryDescription))
+                categoryToUpdate.CategoryDescription = obj.CategoryDescription;
+            if (obj.IsDeleted)
+                categoryToUpdate.IsDeleted = obj.IsDeleted;
+            else
+                categoryToUpdate.IsDeleted = obj.IsDeleted;
 
             // Update categoryImage if it is not null
             if (obj.CategoryImageFile?.FileName != null)
@@ -121,10 +159,6 @@ namespace CodeFirstRestaurantAPI.Services
                 using Stream stream = obj.CategoryImageFile.OpenReadStream();
                 await blobCategoryImg.UploadAsync(stream, overwrite: true);
                 categoryToUpdate.CategoryImage = blobCategoryImg.Uri.AbsoluteUri;
-            }
-            else
-            {
-                return null;
             }
             await ctx.SaveChangesAsync();
             return categoryToUpdate;

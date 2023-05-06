@@ -13,8 +13,8 @@ namespace CodeFirstRestaurantAPI.Models
         public string? MenuImagePath { get; set; }
         [NotMapped]
         public IFormFile? MenuImage { get; set; }
+        public bool IsDeleted { get; set; }
 
-        
 
         public virtual ICollection<MenuCategory>? MenuCategories { get; set; }
     }

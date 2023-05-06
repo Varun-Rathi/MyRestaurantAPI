@@ -53,12 +53,8 @@ namespace CodeFirstRestaurantAPI.Services
             return result.Entity;
         }
 
-        Task<Menu> IService<Menu, int>.CreateWithId(Menu obj, int id)
-        {
-            throw new NotImplementedException();
-        }
 
-        async Task<bool> IService<Menu, int>.DeleteAsync(int Id)
+        async Task<dynamic> IService<Menu, int>.DeleteAsync(int Id)
         {
             //throw new NotImplementedException();
 
@@ -68,13 +64,39 @@ namespace CodeFirstRestaurantAPI.Services
             // menu record not found..
             if (result == null) return false;
 
+            // delete from menucategories
+            var categoryMenus = await ctx.MenuCategories.Where(c => c.MenuId == Id && c.IsDeleted == false).ToListAsync();
+            if (categoryMenus.Any())
+            {
+                categoryMenus.ForEach(async obj =>
+                {
+                    obj.IsDeleted = true;
+                    // category deleted from category table; 
+                    var categoriesToDelete = (from category in ctx.Categories
+                                              where category.CategoryId == obj.CategoryId
+                                              select category).ToListAsync();
+                    categoriesToDelete.Result.ForEach(category => category.IsDeleted = true);
 
-            var categories = await ctx.MenuCategories.Where(c => c.MenuId == Id).ToListAsync();
-             ctx.MenuCategories.RemoveRange(categories);
+                    // delete from categoryDish table 
+                    var categoryDishesToDelete = (from categoryDish in ctx.CategoryDishes
+                                                  where categoryDish.CategoryId == obj.CategoryId
+                                                  select categoryDish).ToListAsync();
+                    categoryDishesToDelete.Result.ForEach(async catDish =>
+                    {
+                        catDish.IsDeleted = true;
+                        // dishes to delete 
+                        var dishesToDelete = (from dish in ctx.Dishes
+                                              where dish.DishId == catDish.DishId
+                                              select dish).ToListAsync();
+                        dishesToDelete.Result.ForEach(dish => dish.IsDeleted = true);
+                    });
 
-            // delete the menu record from database..
+                });
+            }
 
-            ctx.Menus.Remove(result);
+
+
+            result.IsDeleted = true;
             await ctx.SaveChangesAsync();
 
             // delete operation was successful...
@@ -87,20 +109,17 @@ namespace CodeFirstRestaurantAPI.Services
             var result=await ctx.Menus.FindAsync(id);
 
             if (result == null) return null;
+            if (result.IsDeleted) return null;
             return result;
 
         }
 
         async Task<IEnumerable<Menu>> IService<Menu, int>.Get()
         {
-            var results = await ctx.Menus.ToListAsync();
+            var results = await ctx.Menus.Where(obj => obj.IsDeleted == false).ToListAsync();
             return results; 
         }
 
-        Task<IEnumerable<Menu>> IService<Menu, int>.SearchByTerm(string searchTerm)
-        {
-            throw new NotImplementedException();
-        }
 
         async Task<Menu> IService<Menu, int>.UpdateAsync(Menu obj,int id)
         {
@@ -113,6 +132,11 @@ namespace CodeFirstRestaurantAPI.Services
             // Update menu properties with values from obj parameter
             menuToUpdate.MenuName = obj.MenuName;
             menuToUpdate.MenuDescription = obj.MenuDescription;
+
+            if (obj.IsDeleted)
+                menuToUpdate.IsDeleted = obj.IsDeleted;
+            else
+                menuToUpdate.IsDeleted = obj.IsDeleted;
 
             // Update menuImage if it is not null
             if (obj.MenuImage?.FileName != null)

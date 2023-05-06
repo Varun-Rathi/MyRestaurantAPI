@@ -64,8 +64,60 @@ namespace CodeFirstRestaurantAPI.Controllers
             return Ok(result);
         }
 
-      
+
         /*public async Task<IActionResult> Delete(int id)
+         * 
+         
 */
+
+
+
+
+
+
+        [HttpGet("{search}")]
+        [ActionName("SearchByDishName")]
+        public async Task<IActionResult> SearchByDishName(string search)
+        {
+            if (string.IsNullOrWhiteSpace(search))
+            {
+                return BadRequest("Search term cannot be empty.");
+            }
+
+            // Use a service or repository to search for dishes by name.
+            var results = await serv.SearchDish(search);
+
+            if (results.Any())
+            {
+                return Ok(results);
+            }
+            else
+            {
+                return NotFound("No dishes found with the given search term.");
+            }
+        }
+
+
+        [HttpDelete("{DishId}")]
+        [ActionName("DeleteDish")]
+        public async Task<IActionResult> DeleteDishById(int DishId)
+        {
+            var result = await serv.DeleteDish(DishId);
+            if (result == null || result != true) return NotFound();
+            return NoContent();
+        }
+
+
+
+
+        //[HttpGet("{dishId}")]
+        //[ActionName("getRedictionUrlForSeachedDish")]
+        //public async Task<IActionResult> ReturnRedictionUrl(int dishId)
+        //{
+        //    var result = await serv.GetDishWithCategoryAndMenuId(dishId);
+        //    if (result == null) return NotFound("Dish not found or dish not assigned to category or menu");
+        //    return RedirectPermanent(result);
+        //}
+
     }
 }

@@ -22,6 +22,8 @@ namespace CodeFirstRestaurantAPI.Models
 
         [NotMapped]
         public IFormFile? CategoryImageFile { get; set; }
+        public bool IsDeleted { get; set; }
+
 
         public virtual ICollection<CategoryDish>? CategoryDishes { get; set; }
         public virtual ICollection<MenuCategory>? MenuCategories { get; set; }

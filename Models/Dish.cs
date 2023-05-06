@@ -19,6 +19,7 @@ namespace CodeFirstRestaurantAPI.Models
         public IFormFile? DishImageFile { get; set; }
 
         public string? DishNature { get; set; }
+        public bool IsDeleted { get; set; }
 
         public virtual ICollection<CategoryDish>? CategoryDishes { get; set; }
 
