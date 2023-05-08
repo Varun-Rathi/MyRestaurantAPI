@@ -8,6 +8,7 @@
         
         Task<TEntity> UpdateAsync(TEntity obj, TPk CategoryId);  
         Task<bool> DeleteAsync(TPk CategoryId);
+        Task<TEntity> GetCategoryById(TPk CategoryId);  
 
     }
 }

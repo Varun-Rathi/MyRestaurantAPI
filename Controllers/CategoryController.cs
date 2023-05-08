@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CodeFirstRestaurantAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -21,7 +21,7 @@ namespace CodeFirstRestaurantAPI.Controllers
 
             [HttpGet("{MenuId}")]
             [ActionName("GetAllRecords")]
-            public async Task<IActionResult> Get(int MenuId)
+            public async Task<IActionResult> GetCategoriesByMenuId(int MenuId)
             {
                 var results = ctx.GetCategoriesByMenuId(MenuId);
                 return Ok(results);
@@ -38,25 +38,23 @@ namespace CodeFirstRestaurantAPI.Controllers
             }
 
 
-            //[HttpGet("{id}")]
-            //[ActionName("GetById")]
+            [HttpGet("{id}")]
+            [ActionName("GetCategoryById")]
 
-            //public async Task<IActionResult> Get(int id)
-            //{
-            //    var category = await ctx.Get(id);
+            public async Task<IActionResult> GetCategoryById(int id)
+            {
+                var category = await ctx.GetCategoryById(id);
 
-            //    if (category == null)
-            //    {
-            //        return NotFound();
-            //    }
-            //    return Ok(category);
-            //}
+                if (category == null)
+                {
+                    return NotFound();
+                }
+                return Ok(category);
+            }
 
 
             [HttpPut("{id}")]
             [ActionName("UpdateById")]
-
-
             public async Task<IActionResult> Update([FromForm] Category obj, int id)
             {
             var category = await ctx.UpdateAsync(obj, id);

@@ -123,11 +123,18 @@ namespace CodeFirstRestaurantAPI.Services
             var results = (from category in ctx.Categories
                            join menu in ctx.MenuCategories
                            on MenuId equals menu.MenuId
-                           where menu.CategoryId == category.CategoryId 
+                           where menu.CategoryId == category.CategoryId
                            && (menu.IsDeleted == false && category.IsDeleted == false)
                            select category).ToList();
             return results; 
 
+        }
+
+        async Task<Category> ICategoryService<Category, int>.GetCategoryById(int CategoryId)
+        {
+            var result = await ctx.Categories.Where(obj => obj.CategoryId == CategoryId && obj.IsDeleted == false).FirstOrDefaultAsync();
+            if (result == null) return null;
+            return result;
         }
 
 
